@@ -89,6 +89,48 @@ resource "azurerm_network_interface" "workstation_nic" {
   }
 }
 
+## Windows 11 Workstation
+resource "azurerm_public_ip" "win11_pip" {
+  name                = "${var.prefix}-win11-pip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Dynamic"
+}
+
+resource "azurerm_network_interface" "win11_nic" {
+  name                = "${var.prefix}-win11-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.win11_pip.id
+  }
+}
+
+## Windows Server 2025
+resource "azurerm_public_ip" "server2025_pip" {
+  name                = "${var.prefix}-server2025-pip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Dynamic"
+}
+
+resource "azurerm_network_interface" "server2025_nic" {
+  name                = "${var.prefix}-server2025-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.server2025_pip.id
+  }
+}
+
 ## Kali Linux
 resource "azurerm_public_ip" "kali_pip" {
   name                = "${var.prefix}-kali-pip"
@@ -118,6 +160,16 @@ resource "azurerm_network_interface_security_group_association" "dc_nsg" {
 
 resource "azurerm_network_interface_security_group_association" "workstation_nsg" {
   network_interface_id      = azurerm_network_interface.workstation_nic.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
+
+resource "azurerm_network_interface_security_group_association" "win11_nsg" {
+  network_interface_id      = azurerm_network_interface.win11_nic.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
+
+resource "azurerm_network_interface_security_group_association" "server2025_nsg" {
+  network_interface_id      = azurerm_network_interface.server2025_nic.id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 

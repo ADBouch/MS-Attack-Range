@@ -1,4 +1,6 @@
 import os
+import shutil
+import subprocess
 import yaml
 import requests
 from azure.mgmt.compute import ComputeManagementClient
@@ -71,16 +73,23 @@ class AzureAttackRangeCore:
         self.update_ip_config()
         
         try:
-            os.system(f"terraform -chdir=terraform init")
-            result = os.system(f"terraform -chdir=terraform apply -auto-approve")
-            if result != 0:
-                print("Error: Terraform apply failed")
-                return False
-            print("[+] Infrastructure built successfully")
-            return True
+            subprocess.run(["terraform", "-chdir=terraform", "init"], check=True)
+            subprocess.run(["terraform", "-chdir=terraform", "apply", "-auto-approve"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error building infrastructure: Terraform exited with code {e.returncode}")
+            return False
         except Exception as e:
             print(f"Error building infrastructure: {e}")
             return False
+
+        print("[+] Infrastructure built successfully")
+
+        if not self.create_ansible_inventory():
+            print("Warning: Could not generate Ansible inventory; skipping Defender onboarding playbook.")
+            return True
+
+        self.run_defender_onboarding()
+        return True
 
     def destroy(self):
         """Destroy the complete attack range infrastructure"""
@@ -95,6 +104,35 @@ class AzureAttackRangeCore:
         except Exception as e:
             print(f"Error destroying infrastructure: {e}")
             return False
+
+    def run_defender_onboarding(self):
+        """Run the Defender for Endpoint onboarding playbook for Windows hosts."""
+
+        script_path = self.config.get('defender_onboarding_script')
+        if not script_path:
+            print("Warning: 'defender_onboarding_script' is not set in attack-range.yml; skipping Defender onboarding.")
+            return
+
+        abs_script_path = os.path.abspath(script_path)
+
+        if not os.path.exists(abs_script_path):
+            print(f"Warning: Defender onboarding script not found at {abs_script_path}; skipping Defender onboarding.")
+            return
+
+        if shutil.which("ansible-playbook") is None:
+            print("Warning: ansible-playbook is not available on PATH; skipping Defender onboarding.")
+            return
+
+        env = os.environ.copy()
+        env['DEFENDER_ONBOARDING_SCRIPT'] = abs_script_path
+
+        cmd = ["ansible-playbook", "-i", "playbooks/inventory.yml", "playbooks/windows_defender_endpoint.yml"]
+
+        try:
+            subprocess.run(cmd, check=True, env=env)
+            print("[+] Microsoft Defender for Endpoint onboarding playbook completed.")
+        except subprocess.CalledProcessError as e:
+            print(f"Warning: Ansible playbook exited with code {e.returncode}; Defender onboarding may be incomplete.")
 
     def update(self):
         """Update the infrastructure with new resources"""

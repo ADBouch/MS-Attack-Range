@@ -89,6 +89,14 @@ all:
           ansible_host: REPLACE_WITH_WORKSTATION_IP
           ansible_winrm_operation_timeout_sec: 60
           ansible_winrm_read_timeout_sec: 70
+        attack-range-win11:
+          ansible_host: REPLACE_WITH_WIN11_IP
+          ansible_winrm_operation_timeout_sec: 60
+          ansible_winrm_read_timeout_sec: 70
+        attack-range-server2025:
+          ansible_host: REPLACE_WITH_SERVER2025_IP
+          ansible_winrm_operation_timeout_sec: 60
+          ansible_winrm_read_timeout_sec: 70
       vars:
         ansible_connection: winrm
         ansible_password: YourSecurePassword123!AttackRange2024!
