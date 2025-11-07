@@ -1,5 +1,5 @@
 prefix = "attack-range"
-location = "uksouth"
+location = "eastus"
 resource_group_name = "attack-range-rg"
 admin_username = "azureuser"
 admin_password = "YourSecurePassword123!AttackRange2024!"  # CHANGE THIS!

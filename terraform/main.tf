@@ -144,6 +144,20 @@ resource "azurerm_monitor_data_collection_rule_association" "dcr_workstation" {
   description            = "Association for Windows Workstation"
 }
 
+resource "azurerm_monitor_data_collection_rule_association" "dcr_win11" {
+  name                    = "dcr-win11-association"
+  target_resource_id      = azurerm_windows_virtual_machine.win11.id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.dcr.id
+  description            = "Association for Windows 11 Workstation"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "dcr_server2025" {
+  name                    = "dcr-server2025-association"
+  target_resource_id      = azurerm_windows_virtual_machine.server2025.id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.dcr.id
+  description            = "Association for Windows Server 2025"
+}
+
 resource "azurerm_monitor_data_collection_rule_association" "dcr_kali" {
   name                    = "dcr-kali-association"
   target_resource_id      = azurerm_linux_virtual_machine.kali.id

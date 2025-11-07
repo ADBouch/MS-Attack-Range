@@ -1,11 +1,12 @@
 range_name: azure-attack-range
-location: uksouth # pick you location
+location: eastus # pick you location
 subscription_id:xxxxxx-xxxx-xxxx-xxxxx # your sub Id where you want it deployed
 resource_group: attack-range-rg
 
 # VM Access Configuration
 admin_username: "azureuser"    # Should match your terraform.tfvars
-admin_password: "YourSecurePassword123!AttackRange2024!" 
+admin_password: "YourSecurePassword123!AttackRange2024!"
+defender_onboarding_script: "scripts/defender_onboarding/MicrosoftDefenderOnboarding.ps1"
 
 simulation_engine: atomic
 
@@ -16,6 +17,16 @@ machine_access:
     password: "YourSecurePassword123!AttackRange2024!"
   
   windows_workstation:
+    rdp_enabled: true
+    username: "azureuser"
+    password: "YourSecurePassword123!AttackRange2024!"
+
+  windows_win11:
+    rdp_enabled: true
+    username: "azureuser"
+    password: "YourSecurePassword123!AttackRange2024!"
+
+  windows_server2025:
     rdp_enabled: true
     username: "azureuser"
     password: "YourSecurePassword123!AttackRange2024!"
