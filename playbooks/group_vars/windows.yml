@@ -1,0 +1,6 @@
+---
+defender_onboarding_workdir: C:\\Temp
+# Path to the onboarding script on the control node. Set via environment variable or override per host.
+defender_onboarding_script_source: "{{ lookup('env', 'DEFENDER_ONBOARDING_SCRIPT') }}"
+defender_onboarding_script_destination: "{{ defender_onboarding_workdir }}\\MicrosoftDefenderOnboarding.ps1"
+defender_onboarding_marker: C:\\ProgramData\\DefenderForEndpointOnboarded.txt

@@ -3,7 +3,7 @@ all:
     linux:
       hosts:
         attack-range-kali:
-          ansible_host: 172.174.61.12
+          ansible_host: "{{ lookup('env', 'ATTACK_RANGE_KALI_IP') }}"
       vars:
         ansible_connection: ssh
         ansible_ssh_private_key_file: ~/.ssh/id_rsa
@@ -11,13 +11,29 @@ all:
     windows:
       hosts:
         attack-range-dc:
-          ansible_host: 172.174.86.29
+          ansible_host: "{{ lookup('env', 'ATTACK_RANGE_DC_IP') }}"
           ansible_winrm_operation_timeout_sec: 60
           ansible_winrm_read_timeout_sec: 70
+          roles:
+            - defender_for_endpoint
         attack-range-workstation:
-          ansible_host: 52.190.21.16
+          ansible_host: "{{ lookup('env', 'ATTACK_RANGE_WORKSTATION_IP') }}"
           ansible_winrm_operation_timeout_sec: 60
           ansible_winrm_read_timeout_sec: 70
+          roles:
+            - defender_for_endpoint
+        attack-range-win11:
+          ansible_host: "{{ lookup('env', 'ATTACK_RANGE_WIN11_IP') }}"
+          ansible_winrm_operation_timeout_sec: 60
+          ansible_winrm_read_timeout_sec: 70
+          roles:
+            - defender_for_endpoint
+        attack-range-server2025:
+          ansible_host: "{{ lookup('env', 'ATTACK_RANGE_SERVER2025_IP') }}"
+          ansible_winrm_operation_timeout_sec: 60
+          ansible_winrm_read_timeout_sec: 70
+          roles:
+            - defender_for_endpoint
       vars:
         ansible_connection: winrm
         ansible_password: YourSecurePassword123!AttackRange2024!

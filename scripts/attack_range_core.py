@@ -181,13 +181,16 @@ class AzureAttackRangeCore:
                     print(f"Found IP {public_ip} for VM {vm_name}")
 
                     # Explicitly check for DC or workstation in the name
-                    if "dc" in vm_name.lower() or "workstation" in vm_name.lower():
+                    vm_name_lower = vm_name.lower()
+
+                    if any(keyword in vm_name_lower for keyword in ["dc", "workstation", "win11", "server2025"]):
                         inventory['all']['children']['windows']['hosts'][vm_name] = {
                             'ansible_host': public_ip,
                             'ansible_winrm_operation_timeout_sec': 60,
-                            'ansible_winrm_read_timeout_sec': 70
+                            'ansible_winrm_read_timeout_sec': 70,
+                            'roles': ['defender_for_endpoint']
                         }
-                    elif "kali" in vm_name.lower():
+                    elif "kali" in vm_name_lower:
                         inventory['all']['children']['linux']['hosts'][vm_name] = {
                             'ansible_host': public_ip
                         }

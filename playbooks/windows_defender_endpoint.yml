@@ -1,0 +1,36 @@
+---
+- name: Configure Microsoft Defender for Endpoint on Windows hosts
+  hosts: windows
+  gather_facts: yes
+
+  tasks:
+    - name: Apply host-specific roles
+      include_role:
+        name: "{{ item }}"
+      loop: "{{ hostvars[inventory_hostname].roles | default([]) }}"
+
+  post_tasks:
+    - name: Ensure onboarding working directory exists
+      ansible.windows.win_file:
+        path: "{{ defender_onboarding_workdir }}"
+        state: directory
+      when: defender_onboarding_script_source is defined and defender_onboarding_script_source|length > 0
+
+    - name: Copy Defender for Endpoint onboarding script
+      ansible.windows.win_copy:
+        src: "{{ defender_onboarding_script_source }}"
+        dest: "{{ defender_onboarding_script_destination }}"
+      when: defender_onboarding_script_source is defined and defender_onboarding_script_source|length > 0
+
+    - name: Execute Defender for Endpoint onboarding script
+      ansible.windows.win_shell: |
+        powershell.exe -ExecutionPolicy Bypass -File "{{ defender_onboarding_script_destination }}"
+      args:
+        creates: "{{ defender_onboarding_marker }}"
+      when: defender_onboarding_script_source is defined and defender_onboarding_script_source|length > 0
+
+    - name: Mark Defender for Endpoint onboarding as complete
+      ansible.windows.win_file:
+        path: "{{ defender_onboarding_marker }}"
+        state: touch
+      when: defender_onboarding_script_source is defined and defender_onboarding_script_source|length > 0
